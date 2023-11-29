@@ -27,11 +27,19 @@ async function run() {
     
     const userCollecton = client.db('medicalcampDB').collection('users')
 
+    app.get('/user', async(req, res)=>{
+      const userdata = req.query.email;
+      const result = await userCollecton.findOne({email: userdata})
+      res.send(result)
+    })
+
     app.post("/user", async(req, res)=>{
       const user = req.body;
       const result = await userCollecton.insertOne(user)
       res.send(result)
     })
+
+    
     
     await client.db("admin").command({ ping: 1 });
     console.log(
