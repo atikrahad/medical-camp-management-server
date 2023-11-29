@@ -68,9 +68,9 @@ async function run() {
     app.post("/jwt", (req, res) => {
       const userdata = req.body;
       const token = jwt.sign(userdata, process.env.RANDOM_SECRET_TOKEN, {
-        expiresIn: "1h",
+        expiresIn: "30s",
       });
-      console.log(userdata);
+      console.log("hwlow",userdata);
       res
         .cookie("token", token, {
           httpOnly: true,
@@ -79,6 +79,12 @@ async function run() {
         })
         .send({ success: true });
     });
+
+    app.post('/logout', async (req, res)=> {
+      const user= req.body;
+      console.log('logout', user);
+      res.clearCookie('token', {maxAge: 0}).send({success: true})
+    })
 
     app.get("/campcount", async (req, res) => {
       
