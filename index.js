@@ -39,6 +39,30 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/campcount', async(req, res)=>{
+      const count = await campCollecton.estimatedDocumentCount()
+      res.send({count})
+    })
+
+    app.get("/camps", async (req, res) => {
+      const page = parseInt(req.query.page);
+      const category = req.query.filter;
+      
+      var categoryfilter;
+      if (!(category === "all")) {
+        categoryfilter = { division: category };
+      }
+        const skip = (page - 1) * 6;
+        console.log(skip);
+
+      const result = await campCollecton
+        .find(categoryfilter)
+        .skip(skip)
+        .limit(6)
+        .toArray();
+      res.send(result);
+    });
+
     app.post("/camp", async (req, res) => {
       const query = req.body;
       const result = await campCollecton.insertOne(query);
