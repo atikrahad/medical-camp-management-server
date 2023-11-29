@@ -1,13 +1,19 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const jwt = require('jsonwebtoken')
+const cookeyParser = require('cookie-parser')
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin:["http://localhost:5173"],
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookeyParser())
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.0twede1.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -39,6 +45,21 @@ async function run() {
       res.send(result);
     });
 
+    app.post("/jwt", (req, res) => {
+      const userdata = req.body;
+      const token = jwt.sign(userdata, process.env.RANDOM_SECRET_TOKEN, {
+        expiresIn: "1h",
+      });
+      console.log(userdata);
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production', 
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        })
+        .send({ success: true });
+    });
+
     app.get('/campcount', async(req, res)=>{
       const count = await campCollecton.estimatedDocumentCount()
       res.send({count})
@@ -62,6 +83,12 @@ async function run() {
         .toArray();
       res.send(result);
     });
+
+    app.get("/campdetails/:id", async(req, res)=> {
+      const id = req.params.id;
+      const result = await campCollecton.findOne({_id: new ObjectId(id)})
+      res.send(result)
+    })
 
     app.post("/camp", async (req, res) => {
       const query = req.body;
