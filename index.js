@@ -1,15 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-require('dotenv').config()
+require("dotenv").config();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
 const { MongoClient, ServerApiVersion } = require("mongodb");
-const uri =
-  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.0twede1.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.0twede1.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -24,23 +23,28 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    
-    const userCollecton = client.db('medicalcampDB').collection('users')
 
-    app.get('/user', async(req, res)=>{
+    const userCollecton = client.db("medicalcampDB").collection("users");
+    const campCollecton = client.db("medicalcampDB").collection("camps");
+
+    app.get("/user", async (req, res) => {
       const userdata = req.query.email;
-      const result = await userCollecton.findOne({email: userdata})
-      res.send(result)
-    })
+      const result = await userCollecton.findOne({ email: userdata });
+      res.send(result);
+    });
 
-    app.post("/user", async(req, res)=>{
+    app.post("/user", async (req, res) => {
       const user = req.body;
-      const result = await userCollecton.insertOne(user)
-      res.send(result)
-    })
+      const result = await userCollecton.insertOne(user);
+      res.send(result);
+    });
 
-    
-    
+    app.post("/camp", async (req, res) => {
+      const query = req.body;
+      const result = await campCollecton.insertOne(query);
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
