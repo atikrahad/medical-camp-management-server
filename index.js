@@ -54,7 +54,9 @@ async function run() {
 
     app.get("/user", tokenverify, async (req, res) => {
       const userdata = req.query.email;
-      console.log(req.cookies);
+      if(req.user.email!== userdata){
+        return res.status(403).send({message: 'Forbidden'})
+      }
       const result = await userCollecton.findOne({ email: userdata });
       res.send(result);
     });
@@ -68,7 +70,7 @@ async function run() {
     app.post("/jwt", (req, res) => {
       const userdata = req.body;
       const token = jwt.sign(userdata, process.env.RANDOM_SECRET_TOKEN, {
-        expiresIn: "30s",
+        expiresIn: "1s",
       });
       console.log("hwlow",userdata);
       res
