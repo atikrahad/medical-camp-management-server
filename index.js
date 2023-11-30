@@ -4,19 +4,19 @@ const app = express();
 const jwt = require("jsonwebtoken");
 const cookeyParser = require("cookie-parser");
 require("dotenv").config();
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "https://medical-camp-dce58.web.app"],
     credentials: true,
   })
 );
 app.use(express.json());
 app.use(cookeyParser());
 
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.0twede1.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.1lk0tsy.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -46,17 +46,16 @@ const tokenverify = async (req, res, next) => {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const userCollecton = client.db("medicalcampDB").collection("users");
     const campCollecton = client.db("medicalcampDB").collection("camps");
 
     app.get("/user", tokenverify, async (req, res) => {
       const userdata = req.query.email;
-      if(req.user.email!== userdata){
-        return res.status(403).send({message: 'Forbidden'})
-      }
+      // if(req.user.email!== userdata){
+      //   return res.status(403).send({message: 'Forbidden'})
+      // }
       const result = await userCollecton.findOne({ email: userdata });
       res.send(result);
     });
@@ -70,9 +69,9 @@ async function run() {
     app.post("/jwt", (req, res) => {
       const userdata = req.body;
       const token = jwt.sign(userdata, process.env.RANDOM_SECRET_TOKEN, {
-        expiresIn: "1s",
+        expiresIn: "1h",
       });
-      console.log("hwlow",userdata);
+      console.log("hwlow", userdata);
       res
         .cookie("token", token, {
           httpOnly: true,
@@ -82,14 +81,13 @@ async function run() {
         .send({ success: true });
     });
 
-    app.post('/logout', async (req, res)=> {
-      const user= req.body;
-      console.log('logout', user);
-      res.clearCookie('token', {maxAge: 0}).send({success: true})
-    })
+    app.post("/logout", async (req, res) => {
+      const user = req.body;
+      console.log("logout", user);
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+    });
 
     app.get("/campcount", async (req, res) => {
-      
       const count = await campCollecton.estimatedDocumentCount();
       res.send({ count });
     });
@@ -125,10 +123,8 @@ async function run() {
       res.send(result);
     });
 
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
