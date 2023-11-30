@@ -113,6 +113,22 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateData = req.body;
+
+      const quairy = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updateblog = {
+        $set: {
+          title: updateData.title,
+          sort_description: updateData.sort_description,
+          img: updateData.img,
+          category: updateData.category,
+          description: updateData.description,
+        },
+      }
+
     app.get("/campdetails/:id", async (req, res) => {
       const id = req.params.id;
       const result = await campCollecton.findOne({ _id: new ObjectId(id) });
