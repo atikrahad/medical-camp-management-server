@@ -113,6 +113,29 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/camp/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateData = req.body;
+
+      const quairy = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updateblog = {
+        $set: {
+          title: updateData.title,
+          sort_description: updateData.sort_description,
+          img: updateData.img,
+          category: updateData.category,
+          description: updateData.description,
+        },
+      };
+      const result = await blogpostcollection.updateOne(
+        quairy,
+        updateblog,
+        option
+      );
+      res.send(result);
+    });
+
     app.put("/user/:id", async (req, res) => {
       const id = req.params.id;
       const updateData = req.body;
@@ -127,7 +150,14 @@ async function run() {
           category: updateData.category,
           description: updateData.description,
         },
-      }
+      };
+      const result = await blogpostcollection.updateOne(
+        quairy,
+        updateblog,
+        option
+      );
+      res.send(result);
+    });
 
     app.get("/campdetails/:id", async (req, res) => {
       const id = req.params.id;
