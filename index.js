@@ -131,6 +131,12 @@ async function run() {
       res.send(result)
     })
 
+    app.get("/campreview", async(req, res)=>{
+      const id = req.query.campId;
+      const result =await reviewsCollecton.find({campId: id}).toArray()
+      res.send(result);
+    })
+
     app.post("/reviews", async(req, res)=>{
       const data = req.body;
       const result = await reviewsCollecton.insertOne(data)
