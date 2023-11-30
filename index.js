@@ -51,6 +51,7 @@ async function run() {
     const userCollecton = client.db("medicalcampDB").collection("users");
     const campCollecton = client.db("medicalcampDB").collection("camps");
     const participentCollecton = client.db("medicalcampDB").collection("participentdata");
+    const reviewsCollecton = client.db("medicalcampDB").collection("reviews");
 
     app.get("/user", tokenverify, async (req, res) => {
       const userdata = req.query.email;
@@ -130,7 +131,11 @@ async function run() {
       res.send(result)
     })
 
-    
+    app.post("/reviews", async(req, res)=>{
+      const data = req.body;
+      const result = await reviewsCollecton.insertOne(data)
+      res.send(result)
+    })
 
     // await client.db("admin").command({ ping: 1 });
     // console.log("Pinged your deployment. You successfully connected to MongoDB!");
